@@ -1,27 +1,23 @@
 import { Router } from "express";
+import { authenticateToken, authorizeRoles } from "../middlewares/auth.middleware";
+import { UserRole } from "../enums/user-role.enum";
 import { 
-  getProduct,
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct
+  getProduct, 
+  getProducts, 
+  createProduct, 
+  updateProduct, 
+  deleteProduct 
 } from "../controllers/product.controller";
 
 const router = Router();
 
-// GET all products
-router.get("/", getProducts);
+// Admin or User access
+router.get("/", authenticateToken, authorizeRoles(UserRole.USER, UserRole.ADMIN), getProducts);
+router.get("/:id", authenticateToken, authorizeRoles(UserRole.USER, UserRole.ADMIN), getProduct);
 
-// GET one product by id
-router.get("/:id", getProduct);
-
-// CREATE a product
-router.post("/", createProduct);
-
-// UPDATE a product by id
-router.put("/:id", updateProduct);
-
-// DELETE a product by id
-router.delete("/:id", deleteProduct);
+// Admin-only access
+router.post("/", authenticateToken, authorizeRoles(UserRole.ADMIN), createProduct);
+router.put("/:id", authenticateToken, authorizeRoles(UserRole.ADMIN), updateProduct);
+router.delete("/:id", authenticateToken, authorizeRoles(UserRole.ADMIN), deleteProduct);
 
 export default router;

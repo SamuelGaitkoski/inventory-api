@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { authenticateToken, authorizeRoles } from "../middlewares/auth.middleware";
+import { UserRole } from "../enums/user-role.enum";
 import { 
   getCategory,
   getCategories,
@@ -9,19 +11,13 @@ import {
 
 const router = Router();
 
-// GET all categories
-router.get("/", getCategories);
+// Admin or User access
+router.get("/", authenticateToken, authorizeRoles(UserRole.USER, UserRole.ADMIN), getCategories);
+router.get("/:id", authenticateToken, authorizeRoles(UserRole.USER, UserRole.ADMIN), getCategory);
 
-// GET one category by id
-router.get("/:id", getCategory);
-
-// CREATE a category
-router.post("/", createCategory);
-
-// UPDATE a category by id
-router.put("/:id", updateCategory);
-
-// DELETE a category by id
-router.delete("/:id", deleteCategory);
+// Admin-only access
+router.post("/", authenticateToken, authorizeRoles(UserRole.ADMIN), createCategory);
+router.put("/:id", authenticateToken, authorizeRoles(UserRole.ADMIN), updateCategory);
+router.delete("/:id", authenticateToken, authorizeRoles(UserRole.ADMIN), deleteCategory);
 
 export default router;
