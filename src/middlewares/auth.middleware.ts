@@ -1,30 +1,49 @@
 import { NextFunction, Request, Response } from "express";
+import { UserRole } from "../enums/user-role.enum";
 import jwt from "jsonwebtoken";
 
-export function authenticateToken(req: Request, res: Response, next: NextFunction) {
+export type AuthUser = {
+  id: number;
+  email: string;
+  role: UserRole;
+};
+
+export interface AuthenticatedRequest extends Request {
+  user?: AuthUser;
+};
+
+export function authenticateToken(
+  req: AuthenticatedRequest, 
+  res: Response, 
+  next: NextFunction
+) {
   const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = authHeader?.split(" ")[1];
 
   if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || "secret", (err, user) => {
-    if (err) {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-
-    (req as any).user = user;
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET || "secret") as AuthUser;
+    req.user = payload;
     next();
-  });
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
 }
 
-export function authorizeRoles(...roles: string[]) {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as any).user;
+export function authorizeRoles(...roles: UserRole[]) {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
+    if (!user) {
+      if (!user) return res.status(401).json({ message: "Unauthorized" });
+    }
+
     if (!roles.includes(user.role)) {
       return res.status(403).json({ message: "Forbidden: insufficient rights" });
     }
+
     next();
   };
 }
