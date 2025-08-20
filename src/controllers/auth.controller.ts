@@ -32,4 +32,31 @@ export class AuthController {
       return res.status(500).json({ message: "Error registering user" });
     }
   }
+
+  static async login(req: Request, res: Response) {
+    try {
+      const { email, password } = req.body;
+
+      const user = await userRepository.findOne({ where: { email } });
+      if (!user) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Invalid credentials" });
+      }
+
+      const token = jwt.sign(
+        { id: user.id, role: user.role },
+        process.env.JWT_SECRET!,
+        { expiresIn: "1h" }
+      );
+
+      return res.json({ token });
+
+    } catch (error) {
+      return res.status(500).json({ message: "Error logging in" });
+    }
+  }
 }
