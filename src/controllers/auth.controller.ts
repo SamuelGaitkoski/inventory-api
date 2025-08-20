@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/database";
-import { User } from "../models/user.model";
+import { User } from "../entities/user.entity";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { UserRole } from "../enums/user-role.enum";

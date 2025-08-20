@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
-import { Product } from "../models/product.model";
-import { Category } from "../models/category.model";
+import { Product } from "../entities/product.entity";
+import { Category } from "../entities/category.entity";
 
 export const AppDataSource = new DataSource({
   type: "postgres",

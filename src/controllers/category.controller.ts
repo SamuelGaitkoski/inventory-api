@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/database";
-import { Category } from "../models/category.model";
+import { Category } from "../entities/category.entity";
 
 export const getCategories = async (req: Request, res: Response) => {   
   try {

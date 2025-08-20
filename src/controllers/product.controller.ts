@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/database"
-import { Category } from "../models/category.model";
-import { Product } from "../models/product.model"
+import { Category } from "../entities/category.entity";
+import { Product } from "../entities/product.entity"
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
