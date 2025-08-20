@@ -2,11 +2,12 @@ import { Request, Response } from "express";
 import { AppDataSource } from "../config/database"
 import { Category } from "../entities/category.entity";
 import { Product } from "../entities/product.entity"
+import { ProductService } from "../services/product.service";
 
-const categoryService = new CategoryService();
+const productService = new ProductService();
 
 export class CategoryController {
-  static async getProducts (req: Request, res: Response) {
+  static async getProducts(req: Request, res: Response) {
     try {
       const products = await productService.getAll();
       res.json(products);
@@ -15,14 +16,10 @@ export class CategoryController {
     }
   };
 
-  export const getProduct (req: Request, res: Response) {
-    const { id } = req.params;
-
+  static async getProduct(req: Request, res: Response) {
     try {
-      const product = await AppDataSource.getRepository(Product).findOne({
-        where: { id: parseInt(id) },
-        relations: ["category"]
-      });
+      const { id } = req.params;
+      const product = await productService.getById(Number(id));
 
       if (!product) {
         return res.status(404).json({ error: "Product not found" });
@@ -34,61 +31,36 @@ export class CategoryController {
     }
   };
 
-  export const createProduct (req: Request, res: Response) {
-    const { name, price, categoryId } = req.body;
-
-    if (!name || !price || !categoryId) {
-      return res.status(400).json({ error: "Name, Price and CategoryId are required" });
-    }
-
+  static async createProduct(req: Request, res: Response) {
     try {
-      const category = await AppDataSource.getRepository(Category).findOneBy({ 
-        id: categoryId 
-      });
-    
-      if (!category) {
-        return res.status(400).json({ error: "Category not found" });
+      const { name, price, categoryId } = req.body;
+
+      if (!name || !price || !categoryId) {
+        return res.status(400).json({ error: "Name, Price and CategoryId are required" });
       }
 
-      const product = AppDataSource.getRepository(Product).create({ name, price, category });
+      const product = await productService.create(name, price, categoryId);
 
-      await AppDataSource.getRepository(Product).save(product);
-
+      if (!product) {
+        return res.status(400).json({ error: "Category not found" });
+      }
+  
       res.status(201).json(product);
     } catch (error) {
       res.status(500).json({ error: "Failed to create product" });
     }
   };
 
-  export const updateProduct = async (req: Request, res: Response) {
-    const { id } = req.params;
-    const { name, price, categoryId } = req.body;
-
+  static async updateProduct(req: Request, res: Response) {
     try {
-      const productRepo = AppDataSource.getRepository(Product);
-      const product = await productRepo.findOne({ 
-        where: { id: parseInt(id) }, 
-        relations: ["category"] 
-      });
+      const { id } = req.params;
+      const { name, price, categoryId } = req.body;
+
+      const product = await productService.update(Number(id), name, price, categoryId);
 
       if (!product) {
-        return res.status(404).json({ error: "Product not found" });
+        return res.status(404).json({ error: "Product not found or category invalid" });
       }
-
-      if (categoryId) {
-        const category = await AppDataSource.getRepository(Category).findOneBy({ 
-          id: categoryId 
-        });
-        if (!category) {
-          return res.status(400).json({ error: "Category not found" });
-        }
-        product.category = category;
-      }
-
-      product.name = name ?? product.name;
-      product.price = price ?? product.price;
-
-      await productRepo.save(product);
 
       res.json(product);
     } catch (error) {
@@ -96,20 +68,13 @@ export class CategoryController {
     }
   };
 
-  export const deleteProduct = async (req: Request, res: Response) {
-    const { id } = req.params;
-
+  static async deleteProduct(req: Request, res: Response) {
     try {
-      const productRepo = AppDataSource.getRepository(Product);
-      const product = await productRepo.findOneBy({ 
-        id: parseInt(id) 
-      });
-      
-      if (!product) {
+      const deleted = await productService.delete(Number(req.params.id));
+      if (!deleted) {
         return res.status(404).json({ error: "Product not found" });
       }
 
-      await productRepo.remove(product);
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete product" });
