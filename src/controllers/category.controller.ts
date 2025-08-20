@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import { AppDataSource } from "../config/database";
-import { Category } from "../entities/category.entity";
 import { CategoryService } from "../services/category.service";
 
 const categoryService = new CategoryService();
