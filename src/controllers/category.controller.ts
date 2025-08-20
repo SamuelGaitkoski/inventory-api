@@ -1,89 +1,76 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../config/database";
 import { Category } from "../entities/category.entity";
+import { CategoryService } from "../services/category.service";
 
-export const getCategories = async (req: Request, res: Response) => {   
-  try {
-    const categories = await AppDataSource.getRepository(Category).find({ 
-      relations: ["products"] 
-    });
-    res.json(categories);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch categories" });
-  }
-};
+const categoryService = new CategoryService();
 
-export const getCategory = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  try {
-    const category = await AppDataSource.getRepository(Category).findOne({
-      where: { id: Number(id) },
-      relations: ["products"]
-    });
-
-    if (!category) {
-      return res.status(404).json({ error: "Category not found" });
+export class CategoryController {
+  static async getCategories (req: Request, res: Response) {   
+    try {
+      const categories = await categoryService.getAll();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch categories" });
     }
+  };
 
-    res.json(category);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch category" });
-  }
-};
+  static getCategory = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const category = await categoryService.getById(Number(id));
 
-export const createCategory = async (req: Request, res: Response) => {
-  const { name } = req.body;
+      if (!category) {
+        return res.status(404).json({ error: "Category not found" });
+      }
 
-  if (!name) {
-    return res.status(400).json({ error: "Name is required" });
-  }
-
-  try {
-    const categoryRepo = AppDataSource.getRepository(Category);
-    const category = categoryRepo.create({ name });
-    await categoryRepo.save(category);
-    res.status(201).json(category);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create category" });
-  }
-};
-
-export const updateCategory = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { name } = req.body;
-
-  try {
-    const categoryRepo = AppDataSource.getRepository(Category);
-    const category = await categoryRepo.findOneBy({ id: Number(id) });
-
-    if (!category) {
-      return res.status(404).json({ error: "Category not found" });
+      res.json(category);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch category" });
     }
+  };
 
-    category.name = name ?? category.name;
-    await categoryRepo.save(category);
+  static createCategory = async (req: Request, res: Response) => {
+    try {
+      const { name } = req.body;
 
-    res.json(category);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update category" });
-  }
-};
+      if (!name) {
+        return res.status(400).json({ error: "Name is required" });
+      }
 
-export const deleteCategory = async (req: Request, res: Response) => {
-  const { id } = req.params;
+      const category = await categoryService.create(name);
+      res.status(201).json(category);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create category" });
+    }
+  };
 
-  try {
-    const categoryRepo = AppDataSource.getRepository(Category);
-    const category = await categoryRepo.findOneBy({ id: Number(id) });
+  static updateCategory = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { name } = req.body;
     
-    if (!category) {
-      return res.status(404).json({ error: "Category not found" });
-    }
+      const updated = await categoryService.update(Number(id), name);
+      if (!updated) {
+        return res.status(404).json({ error: "Category not found" });
+      }
 
-    await categoryRepo.remove(category);
-    res.json({ message: "Category deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to delete category" });
-  }
-};
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update category" });
+    }
+  };
+
+  static deleteCategory = async (req: Request, res: Response) => {
+    try {
+      const deleted = await categoryService.delete(Number(req.params.id));  
+      if (!deleted) {
+        return res.status(404).json({ error: "Category not found" });
+      }
+
+      res.json({ message: "Category deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete category" });
+    }
+  };
+}
