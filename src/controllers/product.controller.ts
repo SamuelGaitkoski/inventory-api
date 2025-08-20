@@ -3,115 +3,116 @@ import { AppDataSource } from "../config/database"
 import { Category } from "../entities/category.entity";
 import { Product } from "../entities/product.entity"
 
-export const getProducts = async (req: Request, res: Response) => {
-  try {
-    const products = await AppDataSource.getRepository(Product).find({ 
-      relations: ["category"] 
-    });
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch products" });
-  }
-};
+const categoryService = new CategoryService();
 
-export const getProduct = async (req: Request, res: Response) => {
-  const { id } = req.params;
+export class CategoryController {
+  static async getProducts (req: Request, res: Response) {
+    try {
+      const products = await productService.getAll();
+      res.json(products);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch products" });
+    }
+  };
 
-  try {
-    const product = await AppDataSource.getRepository(Product).findOne({
-      where: { id: parseInt(id) },
-      relations: ["category"]
-    });
+  export const getProduct (req: Request, res: Response) {
+    const { id } = req.params;
 
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+    try {
+      const product = await AppDataSource.getRepository(Product).findOne({
+        where: { id: parseInt(id) },
+        relations: ["category"]
+      });
+
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch product" });
+    }
+  };
+
+  export const createProduct (req: Request, res: Response) {
+    const { name, price, categoryId } = req.body;
+
+    if (!name || !price || !categoryId) {
+      return res.status(400).json({ error: "Name, Price and CategoryId are required" });
     }
 
-    res.json(product);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch product" });
-  }
-};
-
-export const createProduct = async (req: Request, res: Response) => {
-  const { name, price, categoryId } = req.body;
-
-  if (!name || !price || !categoryId) {
-    return res.status(400).json({ error: "Name, Price and CategoryId are required" });
-  }
-
-  try {
-    const category = await AppDataSource.getRepository(Category).findOneBy({ 
-      id: categoryId 
-    });
-  
-    if (!category) {
-      return res.status(400).json({ error: "Category not found" });
-    }
-
-    const product = AppDataSource.getRepository(Product).create({ name, price, category });
-
-    await AppDataSource.getRepository(Product).save(product);
-
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to create product" });
-  }
-};
-
-export const updateProduct = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { name, price, categoryId } = req.body;
-
-  try {
-    const productRepo = AppDataSource.getRepository(Product);
-    const product = await productRepo.findOne({ 
-      where: { id: parseInt(id) }, 
-      relations: ["category"] 
-    });
-
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
-    }
-
-    if (categoryId) {
+    try {
       const category = await AppDataSource.getRepository(Category).findOneBy({ 
         id: categoryId 
       });
+    
       if (!category) {
         return res.status(400).json({ error: "Category not found" });
       }
-      product.category = category;
+
+      const product = AppDataSource.getRepository(Product).create({ name, price, category });
+
+      await AppDataSource.getRepository(Product).save(product);
+
+      res.status(201).json(product);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to create product" });
     }
+  };
 
-    product.name = name ?? product.name;
-    product.price = price ?? product.price;
+  export const updateProduct = async (req: Request, res: Response) {
+    const { id } = req.params;
+    const { name, price, categoryId } = req.body;
 
-    await productRepo.save(product);
+    try {
+      const productRepo = AppDataSource.getRepository(Product);
+      const product = await productRepo.findOne({ 
+        where: { id: parseInt(id) }, 
+        relations: ["category"] 
+      });
 
-    res.json(product);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update product" });
-  }
-};
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
 
-export const deleteProduct = async (req: Request, res: Response) => {
-  const { id } = req.params;
+      if (categoryId) {
+        const category = await AppDataSource.getRepository(Category).findOneBy({ 
+          id: categoryId 
+        });
+        if (!category) {
+          return res.status(400).json({ error: "Category not found" });
+        }
+        product.category = category;
+      }
 
-  try {
-    const productRepo = AppDataSource.getRepository(Product);
-    const product = await productRepo.findOneBy({ 
-      id: parseInt(id) 
-    });
-    
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+      product.name = name ?? product.name;
+      product.price = price ?? product.price;
+
+      await productRepo.save(product);
+
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update product" });
     }
+  };
 
-    await productRepo.remove(product);
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ error: "Failed to delete product" });
-  }
-};
+  export const deleteProduct = async (req: Request, res: Response) {
+    const { id } = req.params;
 
+    try {
+      const productRepo = AppDataSource.getRepository(Product);
+      const product = await productRepo.findOneBy({ 
+        id: parseInt(id) 
+      });
+      
+      if (!product) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      await productRepo.remove(product);
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete product" });
+    }
+  };
+}

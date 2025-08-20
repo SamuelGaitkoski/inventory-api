@@ -13,7 +13,7 @@ export class CategoryController {
     }
   };
 
-  static getCategory = async (req: Request, res: Response) => {
+  static async getCategory(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const category = await categoryService.getById(Number(id));
@@ -28,7 +28,7 @@ export class CategoryController {
     }
   };
 
-  static createCategory = async (req: Request, res: Response) => {
+  static async createCategory(req: Request, res: Response) {
     try {
       const { name } = req.body;
 
@@ -43,7 +43,7 @@ export class CategoryController {
     }
   };
 
-  static updateCategory = async (req: Request, res: Response) => {
+  static async updateCategory(req: Request, res: Response) {
     try {
       const { id } = req.params;
       const { name } = req.body;
@@ -59,7 +59,7 @@ export class CategoryController {
     }
   };
 
-  static deleteCategory = async (req: Request, res: Response) => {
+  static async deleteCategory(req: Request, res: Response) {
     try {
       const deleted = await categoryService.delete(Number(req.params.id));  
       if (!deleted) {
