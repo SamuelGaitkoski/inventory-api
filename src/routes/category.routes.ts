@@ -29,6 +29,8 @@ const router = Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/Category'
+ *        500:
+ *          description: Failed to fetch categories
  */
 router.get("/", authenticateToken, authorizeRoles(UserRole.USER, UserRole.ADMIN), CategoryController.getCategories);
 
@@ -56,6 +58,8 @@ router.get("/", authenticateToken, authorizeRoles(UserRole.USER, UserRole.ADMIN)
  *               $ref: '#/components/schemas/Category'
  *       404:
  *         description: Category not found
+ *       500:
+ *         description: Failed to fetch category  
  */
 router.get("/:id", authenticateToken, authorizeRoles(UserRole.USER, UserRole.ADMIN), CategoryController.getCategory);
 
