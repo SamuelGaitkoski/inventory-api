@@ -10,6 +10,40 @@ const options: swaggerJSDoc.Options = {
       version: "1.0.0",
       description: "API documentation",
     },
+    components: {
+      schemas: {
+        Category: {
+          type: "object",
+          required: ["name"],
+          properties: {
+            id: {
+              type: "string",
+              description: "Auto-generated ID",
+            },
+            name: {
+              type: "string",
+              description: "Category name",
+            },
+          },
+          example: {
+            id: "123",
+            name: "Electronics",
+          },
+        },
+      },
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
   apis: ["./src/routes/*.ts"],
 };
