@@ -85,7 +85,7 @@ router.get("/:id", authenticateToken, authorizeRoles(UserRole.USER, UserRole.ADM
  *             schema:
  *               $ref: '#/components/schemas/Product'
  *       400:
- *         description: Bad Request. Possible reasons: Name, Price and CategoryId are required OR Category not found
+ *         description: Bad Request
  *         content:
  *           application/json:
  *             schema:
