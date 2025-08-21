@@ -6,7 +6,7 @@ import { ProductService } from "../services/product.service";
 
 const productService = new ProductService();
 
-export class CategoryController {
+export class ProductController {
   static async getProducts(req: Request, res: Response) {
     try {
       const products = await productService.getAll();
