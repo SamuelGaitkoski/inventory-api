@@ -8,7 +8,8 @@ AppDataSource.initialize()
   .then(() => {
     console.log("Database connected");
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+      console.log(`Server running on port http://localhost:${PORT}`);
+      console.log(`Swagger docs available at http://localhost:${PORT}/api-docs`);
     });
   })
   .catch((error) => console.error(error));
