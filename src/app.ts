@@ -1,7 +1,8 @@
 import express from "express";
 import { json } from "express";
-import productRoutes from "./routes/product.routes";
+import authRoutes from "./routes/auth.routes";
 import categoryRoutes from "./routes/category.routes";
+import productRoutes from "./routes/product.routes";
 import { setupSwagger } from "./swagger";
 
 const app = express();
@@ -10,8 +11,9 @@ const app = express();
 app.use(json());
 
 // Routes
+app.use("/auth", authRoutes);
+app.use("/categories", categoryRoutes);
 app.use("/products", productRoutes);
-app.use("/category", categoryRoutes);
 
 // Swagger docs
 setupSwagger(app);
