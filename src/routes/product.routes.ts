@@ -14,7 +14,7 @@ const router = Router();
 
 /**
  * @swagger
- * /categories:
+ * /products:
  *   get:
  *     summary: Get all products
  *     tags: [Products]
