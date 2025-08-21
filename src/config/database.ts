@@ -1,4 +1,5 @@
 import { DataSource } from "typeorm";
+import { User } from "../entities/user.entity";
 import { Product } from "../entities/product.entity";
 import { Category } from "../entities/category.entity";
 
@@ -9,7 +10,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  synchronize: true, // auto-create tables (dev only)
+  synchronize: true,
   logging: false,
-  entities: [Product, Category],
+  entities: [User, Product, Category],
 });
