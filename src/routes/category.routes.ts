@@ -9,7 +9,7 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Categories
- *   description: Category management
+ *   description: Category endpoints
  */
 
 /**
