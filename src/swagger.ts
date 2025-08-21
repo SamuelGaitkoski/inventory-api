@@ -30,6 +30,34 @@ const options: swaggerJSDoc.Options = {
             name: "Electronics",
           },
         },
+        Product: {
+          type: "object",
+          required: ["name", "price", "categoryId"],
+          properties: {
+            id: {
+              type: "string",
+              description: "Auto-generated ID",
+            },
+            name: {
+              type: "string",
+              description: "Product name",
+            },
+            price: {
+              type: "number",
+              description: "Product price",
+            },
+            categoryId: {
+              type: "string",
+              description: "ID of the category this product belongs to",
+            },
+          },
+          example: {
+            id: "456",
+            name: "Smartphone",
+            price: 699.99,
+            categoryId: "123",
+          },
+        },
       },
       securitySchemes: {
         bearerAuth: {
