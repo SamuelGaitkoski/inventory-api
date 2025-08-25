@@ -37,7 +37,7 @@ export function authorizeRoles(...roles: UserRole[]) {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const user = req.user;
     if (!user) {
-      if (!user) return res.status(401).json({ message: "Unauthorized" });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     if (!roles.includes(user.role)) {
